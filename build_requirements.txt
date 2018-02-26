@@ -1,2 +1,3 @@
 nose
+rednose
 flake8
