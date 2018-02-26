@@ -9,4 +9,7 @@ install:
 # command to run tests
 script:
   - flake8 src
-  - nosetests
+  - nosetests --with-coverage
+
+after_success:
+  - codecov
