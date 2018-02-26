@@ -6,7 +6,7 @@ on user's requirements.
 import json
 import logging
 
-from beanbag.v2 import POST, GET, PUT
+from beanbag.v2 import POST, GET, PUT, BeanBagException
 
 from lightblue.common import retry_session
 from lightblue.custombeanbag import CustomBeanBag
@@ -94,7 +94,7 @@ class LightBlueService(object):
             self.log_response(response)
 
             return response
-        except:
+        except BeanBagException:
             LOGGER.exception("Insert data failed")
             LOGGER.debug(json.dumps(data))
 
@@ -124,7 +124,7 @@ class LightBlueService(object):
             self.log_response(response)
 
             return response
-        except:
+        except BeanBagException:
             LOGGER.exception("Delete data failed")
             LOGGER.debug(json.dumps(data))
 
@@ -154,7 +154,7 @@ class LightBlueService(object):
             self.log_response(response)
 
             return response
-        except:
+        except BeanBagException:
             LOGGER.exception("Update data failed")
             LOGGER.debug(json.dumps(data))
 
@@ -185,6 +185,6 @@ class LightBlueService(object):
             self.log_response(response)
 
             return response
-        except:
+        except BeanBagException:
             LOGGER.exception("Find data failed")
             LOGGER.debug(json.dumps(data))
