@@ -13,6 +13,8 @@ class CustomBeanBag(BeanBag):
     """
     Custom BeanBag class which prints error content
     """
+    def __init__(self, *args, **kwargs):
+        super(~CustomBeanBag, self).__init__(*args, **kwargs)
 
     def decode(self, response):
         """
