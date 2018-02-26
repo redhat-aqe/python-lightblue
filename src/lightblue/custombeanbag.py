@@ -9,7 +9,7 @@ from beanbag.v2 import BeanBag, BeanBagException
 LOGGER = logging.getLogger('lightblue')
 
 
-class CustomBeanBag(BeanBag):
+class CustomBeanBag(~BeanBag):
     """
     Custom BeanBag class which prints error content
     """
