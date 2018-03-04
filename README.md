@@ -13,6 +13,22 @@ Levels of abstraction (from low to high):
 ### 1) LightBlueEntity and LightBlueService
 Basic modules to query a LightBlue on a level of the request.
 
+
+```python
+from lightblue.service import LightBlueService
+from lightblue.entity import LightBlueEntity
+
+service = LightBlueService(
+    'https://data-url.com/data',
+    'https://metadata-url.com/metadata')
+
+interface = LightBlueEntity(
+    light_blue_service=service,
+    entity_name='foo',
+    version='1.0.0')
+
+```
+
 ### 2) LightBlueQuery
 Class that represents a query to LB in time
 (both non-executed and executed states).
@@ -21,12 +37,14 @@ Has a relation to the LightBlueEntity.
 Usage example:
 
 ```python
-LightBlueQuery(_id='hash').find()
-a = LightBlueQuery(('foo', '$neq', 'value'), bar='value2')
+from lightblue.query import LightBlueQuery
+
+LightBlueQuery(interface=interface, _id='hash').find()
+a = LightBlueQuery(interface=interface, ('foo', '$neq', 'value'), bar='value2')
 a._add_to_projection('foo', recursive=['bar'])
 a._add_to_update(unset='foobar')
 a.update()
-LightBlueQuery.insert({'key': 'item'})
+LightBlueQuery.insert({'key': 'item'}, interface)
 ```
 
 Why _add_to_projection() is private?
@@ -37,7 +55,9 @@ Because we have another level of abstraction...
 so you can call:
 
 ```python
-LightBlueGenericSelection(foo='value').find(
+from lightblue.selection import LightBlueGenericSelection
+
+LightBlueGenericSelection(interface=interface, foo='value').find(
     check_response=True,
     selector='/processed/0/bar/',
     count=(1, 2),
