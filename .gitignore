@@ -4,3 +4,5 @@ build/
 dist/
 .coverage
 cover
+src/python_lightblue.egg-info/
+.eggs
