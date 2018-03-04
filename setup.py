@@ -15,8 +15,9 @@ LICENSE = 'GPLv3'
 
 SHORT_DESCRIPTION = 'A Python API for Lightblude database.'
 try:
-    DESCRIPTION = open(os.path.join(PROJECT_ROOT, "README.md")).read()
-except IOError:
+    import pypandoc
+    DESCRIPTION = pypandoc.convert(os.path.join(PROJECT_ROOT, 'README.md'), 'rst')
+except (IOError, ImportError):
     DESCRIPTION = SHORT_DESCRIPTION
 
 INSTALL_REQUIRES = open(os.path.join(PROJECT_ROOT, 'requirements.txt')). \

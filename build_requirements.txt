@@ -2,3 +2,4 @@ nose
 rednose
 flake8
 codecov
+pypandoc
