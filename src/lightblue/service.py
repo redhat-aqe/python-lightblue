@@ -6,10 +6,9 @@ on user's requirements.
 import json
 import logging
 
-from beanbag.v2 import POST, GET, PUT, BeanBagException
+from beanbag.v2 import BeanBag, POST, GET, PUT, BeanBagException
 
 from lightblue.common import retry_session
-from lightblue.custombeanbag import CustomBeanBag
 
 LOGGER = logging.getLogger('lightblue')
 
@@ -30,11 +29,11 @@ class LightBlueService(object):
                 self.session.cert = self.ssl_certificate
         else:
             self.session = custom_session
-        self.data_api = CustomBeanBag(self.data_url, session=self.session,
-                                      use_attrdict=False)
-        self.metadata_api = CustomBeanBag(self.metadata_url,
-                                          session=self.session,
-                                          use_attrdict=False)
+        self.data_api = BeanBag(self.data_url, session=self.session,
+                                use_attrdict=False)
+        self.metadata_api = BeanBag(self.metadata_url,
+                                    session=self.session,
+                                    use_attrdict=False)
 
     @staticmethod
     def log_response(response):
