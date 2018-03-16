@@ -13,10 +13,11 @@ URL = 'https://github.com/Allda/python-lightblue'
 LICENSE = 'GPLv3'
 
 
-SHORT_DESCRIPTION = 'A Python API for Lightblude database.'
+SHORT_DESCRIPTION = 'A Python API for Lightblue database.'
 try:
     import pypandoc
-    DESCRIPTION = pypandoc.convert(os.path.join(PROJECT_ROOT, 'README.md'), 'rst')
+    DESCRIPTION = pypandoc.convert(os.path.join(PROJECT_ROOT, 'README.md'),
+                                   'rst')
 except (IOError, ImportError):
     DESCRIPTION = SHORT_DESCRIPTION
 
