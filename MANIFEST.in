@@ -1,3 +1,4 @@
 include build_requirements.txt
 include requirements.txt
 include LICENSE
+recursive-include src/tests/ *
