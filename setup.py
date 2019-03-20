@@ -9,7 +9,7 @@ EMAILS = 'araszka@redhat.com, mbirger@redhat.com'
 AUTHORS = 'Ales Raszka, Mark Birger'
 VERSION = '0.1.5'
 
-URL = 'https://github.com/Allda/python-lightblue'
+URL = 'https://github.com/redhat-aqe/python-lightblue'
 LICENSE = 'GPLv3'
 
 

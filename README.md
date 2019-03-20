@@ -1,8 +1,8 @@
 # Python lightblue library
 
-[![codecov.io](https://codecov.io/gh/Allda/python-lightblue/coverage.svg?branch=master)](https://codecov.io/gh/Allda/python-lightblue?branch=master)
+[![codecov](https://codecov.io/gh/redhat-aqe/python-lightblue/branch/master/graph/badge.svg)](https://codecov.io/gh/redhat-aqe/python-lightblue)
 
-[![Build Status](https://travis-ci.org/Allda/python-lightblue.svg?branch=master)](https://travis-ci.org/Allda/python-lightblue)
+[![Build Status](https://travis-ci.org/redhat-aqe/python-lightblue.svg?branch=master)](https://travis-ci.org/redhat-aqe/python-lightblue)
 
 This is python library for [Lightblue][lightblue] database. It can be used as API 
 interface.
