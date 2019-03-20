@@ -23,7 +23,7 @@ service = LightBlueService(
     'https://metadata-url.com/metadata')
 
 interface = LightBlueEntity(
-    light_blue_service=service,
+    lightblue_service=service,
     entity_name='foo',
     version='1.0.0')
 
@@ -39,8 +39,8 @@ Usage example:
 ```python
 from lightblue.query import LightBlueQuery
 
-LightBlueQuery(interface=interface, _id='hash').find()
-a = LightBlueQuery(interface=interface, ('foo', '$neq', 'value'), bar='value2')
+LightBlueQuery(_id='hash', interface=interface).find()
+a = LightBlueQuery(('foo', '$neq', 'value'), bar='value2', interface=interface)
 a._add_to_projection('foo', recursive=['bar'])
 a._add_to_update(unset='foobar')
 a.update()
@@ -57,7 +57,7 @@ so you can call:
 ```python
 from lightblue.selection import LightBlueGenericSelection
 
-LightBlueGenericSelection(interface=interface, foo='value').find(
+LightBlueGenericSelection(foo='value', interface=interface).find(
     check_response=True,
     selector='/processed/0/bar/',
     count=(1, 2),
