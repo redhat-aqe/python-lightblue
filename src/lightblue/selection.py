@@ -161,7 +161,7 @@ class LightBlueGenericSelection(LightBlueQuery):
             list: query (as pairs) to identify a specific entity.
         """
         query = []
-        for key, selector in primary_keys.iteritems():
+        for key, selector in primary_keys.items():
             query.append((key, dpath.util.get(data, selector), ))
         return query
 

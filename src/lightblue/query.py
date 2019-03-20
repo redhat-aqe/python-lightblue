@@ -45,8 +45,8 @@ class LightBlueQuery(object):
         self.interface = interface
         # query is a list of triples (field, op, rvalue)
         queries_pairs = self._kwargs_to_pairs(**kwargs)
-        args = map(self._query_pairs_to_triples, args)
-        queries_pairs = map(self._query_pairs_to_triples, queries_pairs)
+        args = list(map(self._query_pairs_to_triples, args))
+        queries_pairs = list(map(self._query_pairs_to_triples, queries_pairs))
         self._queries = args + queries_pairs
         self._raw_queries = []
         # projections is a list of fields
@@ -104,7 +104,7 @@ class LightBlueQuery(object):
             tuple: (field, rvalue)
         """
         pairs = []
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             if key in self.kwargs_aliases:
                 pairs.append((self.kwargs_aliases[key], value, ))
             else:
@@ -121,8 +121,8 @@ class LightBlueQuery(object):
             **kwargs: dict with query (equals)
         """
         queries_pairs = self._kwargs_to_pairs(**kwargs)
-        args = map(self._query_pairs_to_triples, args)
-        queries_pairs = map(self._query_pairs_to_triples, queries_pairs)
+        args = list(map(self._query_pairs_to_triples, args))
+        queries_pairs = list(map(self._query_pairs_to_triples, queries_pairs))
         self._queries += args + queries_pairs
 
     def add_raw_query(self, query):
