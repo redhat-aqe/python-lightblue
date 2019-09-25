@@ -6,8 +6,6 @@ on user's requirements.
 import json
 import logging
 
-from beanbag.v2 import BeanBag, POST, GET, PUT, BeanBagException
-
 from lightblue.common import retry_session
 
 LOGGER = logging.getLogger('lightblue')
@@ -17,8 +15,15 @@ class LightBlueService(object):
     """"
         Class for interacting with lightBlue API
     """
-    def __init__(self, data_url, metadata_url, ssl_certificate=None,
-                 ssl_verify=True, custom_session=None):
+
+    def __init__(
+        self,
+        data_url,
+        metadata_url,
+        ssl_certificate=None,
+        ssl_verify=True,
+        custom_session=None,
+    ):
         self.data_url = data_url
         self.metadata_url = metadata_url
         self.ssl_certificate = ssl_certificate
@@ -29,11 +34,6 @@ class LightBlueService(object):
                 self.session.cert = self.ssl_certificate
         else:
             self.session = custom_session
-        self.data_api = BeanBag(self.data_url, session=self.session,
-                                use_attrdict=False)
-        self.metadata_api = BeanBag(self.metadata_url,
-                                    session=self.session,
-                                    use_attrdict=False)
 
     @staticmethod
     def log_response(response):
@@ -42,16 +42,22 @@ class LightBlueService(object):
         Args:
             response: API call response
         """
+        log_response = {'statusCode': response.status_code}
+        try:
+            response_data = response.json()
+            log_response['status'] = response_data.get('status')
+            log_response['matchCount'] = response_data.get('matchCount')
+            log_response['modifiedCount'] = response_data.get('modifiedCount')
+            # data should be excluded from log message - include only
+            # data errors
+            if response_data.get('status') != 'COMPLETE':
+                log_response['dataErrors'] = response_data.get('dataErrors')
+                log_response['errors'] = response_data.get('errors')
+        except ValueError:
+            log_response['text_response'] = response.text
 
-        log_response = {
-            'status': response['status'],
-            'matchCount': response['matchCount'],
-            'modifiedCount': response['modifiedCount']
-        }
-        # data should be excluded from log message - include only data errors
-        if response['status'] != 'COMPLETE' and 'dataErrors' in response:
-            log_response['dataErrors'] = response['dataErrors']
-        LOGGER.debug("%s", log_response)
+        LOGGER.debug("LightBlue response - %s", log_response)
+        return log_response
 
     def get_schema(self, entity_name, version):
         """
@@ -64,8 +70,15 @@ class LightBlueService(object):
             - dict - schema of given entity
 
         """
-        LOGGER.debug("%s - %s", 'GET', self.metadata_api[entity_name][version])
-        return GET(self.metadata_api[entity_name][version])
+        url = '{metadata_url}/{entity_name}/{version}'.format(
+            metadata_url=self.metadata_url,
+            entity_name=entity_name,
+            version=version
+        )
+        LOGGER.debug("%s - %s", 'GET', url)
+        response = self.session.get(url)
+        response.raise_for_status()
+        return response.json()
 
     def insert_data(self, entity_name, version, data):
         """
@@ -79,23 +92,19 @@ class LightBlueService(object):
             - dict - lightblue response
 
         """
-        try:
-            if version is not None:
-                LOGGER.debug("%s - %s", 'PUT',
-                             self.data_api.insert[entity_name][version])
-                response = PUT(
-                    self.data_api.insert[entity_name][version], data)
-            else:
-                LOGGER.debug("%s - %s", 'PUT',
-                             self.data_api.insert[entity_name])
-                response = PUT(self.data_api.insert[entity_name], data)
-
-            self.log_response(response)
-
-            return response
-        except BeanBagException:
-            LOGGER.exception("Insert data failed")
-            LOGGER.debug(json.dumps(data))
+        url = '{data_url}/insert/{entity_name}'
+        if version is not None:
+            url = url + '/{version}'
+        url = url.format(
+            data_url=self.data_url, entity_name=entity_name, version=version
+        )
+        LOGGER.debug("%s - %s", 'PUT', url)
+        response = self.session.put(url, json=data)
+        self.log_response(response)
+        if response.status_code != 200:
+            LOGGER.error('Insert data failed - %s', json.dumps(data))
+            return None
+        return response.json()
 
     def delete_data(self, entity_name, version, data):
         """
@@ -109,23 +118,20 @@ class LightBlueService(object):
             - dict - lightblue response
 
         """
-        try:
-            if version is not None:
-                LOGGER.debug("%s - %s -%s", 'POST',
-                             self.data_api.delete[entity_name][version], data)
-                response = POST(
-                    self.data_api.delete[entity_name][version], data)
-            else:
-                LOGGER.debug("%s - %s -%s", 'POST',
-                             self.data_api.delete[entity_name], data)
-                response = POST(self.data_api.delete[entity_name], data)
 
-            self.log_response(response)
-
-            return response
-        except BeanBagException:
-            LOGGER.exception("Delete data failed")
-            LOGGER.debug(json.dumps(data))
+        url = '{data_url}/delete/{entity_name}'
+        if version is not None:
+            url = url + '/{version}'
+        url = url.format(
+            data_url=self.data_url, entity_name=entity_name, version=version
+        )
+        LOGGER.debug("%s - %s", 'POST', url)
+        response = self.session.post(url, json=data)
+        self.log_response(response)
+        if response.status_code != 200:
+            LOGGER.error('Delete data failed - %s', json.dumps(data))
+            return None
+        return response.json()
 
     def update_data(self, entity_name, version, data):
         """
@@ -139,23 +145,19 @@ class LightBlueService(object):
             - dict - lightblue response
 
         """
-        try:
-            if version is not None:
-                LOGGER.debug("%s - %s -%s", 'POST', self.data_api.update[
-                    entity_name][version], data['query'])
-                response = POST(
-                    self.data_api.update[entity_name][version], data)
-            else:
-                LOGGER.debug("%s - %s -%s", 'POST', self.data_api.update[
-                    entity_name], data['query'])
-                response = POST(self.data_api.update[entity_name], data)
-
-            self.log_response(response)
-
-            return response
-        except BeanBagException:
-            LOGGER.exception("Update data failed")
-            LOGGER.debug(json.dumps(data))
+        url = '{data_url}/update/{entity_name}'
+        if version is not None:
+            url = url + '/{version}'
+        url = url.format(
+            data_url=self.data_url, entity_name=entity_name, version=version
+        )
+        LOGGER.debug("%s - %s", 'POST', url)
+        response = self.session.post(url, json=data)
+        self.log_response(response)
+        if response.status_code != 200:
+            LOGGER.error('Update data failed - %s', json.dumps(data))
+            return None
+        return response.json()
 
     def find_data(self, entity_name, version, data):
         """
@@ -169,21 +171,17 @@ class LightBlueService(object):
             - dict - result of search and projection query
 
         """
-        try:
-            if version is not None:
-                LOGGER.debug("%s - %s -%s", 'POST',
-                             self.data_api.find[entity_name][version],
-                             data['query'])
-                response = POST(
-                    self.data_api.find[entity_name][version], data)
-            else:
-                LOGGER.debug("%s - %s -%s", 'POST',
-                             self.data_api.find[entity_name], data['query'])
-                response = POST(self.data_api.find[entity_name], data)
 
-            self.log_response(response)
-
-            return response
-        except BeanBagException:
-            LOGGER.exception("Find data failed")
-            LOGGER.debug(json.dumps(data))
+        url = '{data_url}/find/{entity_name}'
+        if version is not None:
+            url = url + '/{version}'
+        url = url.format(
+            data_url=self.data_url, entity_name=entity_name, version=version
+        )
+        LOGGER.debug("%s - %s", 'POST', url)
+        response = self.session.post(url, json=data)
+        self.log_response(response)
+        if response.status_code != 200:
+            LOGGER.error('Find data failed - %s', json.dumps(data))
+            return None
+        return response.json()
