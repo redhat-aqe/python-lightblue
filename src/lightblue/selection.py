@@ -168,6 +168,14 @@ class LightBlueGenericSelection(LightBlueQuery):
     # TODO: design a classmethod to insert item and return selector
 
     # .add_raw_query() method is public from LightBlueQuery
+    def with_lb_id(self):
+        """
+        Include LB _id field
+
+        Allows method chaining, returns self.
+        """
+        self._add_to_projection('_id')
+        return self
 
     def filter_created_by(self, service):
         """
@@ -223,3 +231,40 @@ class LightBlueGenericSelection(LightBlueQuery):
             selector='/processed',
             fallback=[]
         )
+
+    def update_with(self, data):
+        """
+        Update item with given data
+
+        Args:
+            data (dict): update data
+
+        Returns:
+            dict: response as specified in the projection
+
+        """
+        self._add_to_update(_set=data)
+        return self.update()
+
+    def unset_fields(self, fields):
+        """
+        Unset fields.
+
+        Skips update if fields is empty.
+
+        Args:
+            removed_fields (list):
+                list of sorted fields, for example:
+                ['field.3', 'field.1']
+
+        Returns:
+            dict: response from lightblue update query
+            int: count on removed fields, 0 if update failed
+
+        """
+        if len(fields) == 0:
+            return None, 0
+        # check response is included
+        self._add_to_update(unset=fields)
+        response = self.update()
+        return response, 0 if response is None else len(fields)
