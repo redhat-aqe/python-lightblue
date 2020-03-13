@@ -203,35 +203,30 @@ class LightBlueEntity(object):
         return self.service.find_data(self.entity_name, self.version,
                                       lightblue_data)
 
-    def find_paginated(self, page_size, find_func,
-                       find_args=None, find_kwargs=None):
+    def find_paginated(self, page_size, find, *args, **kwargs):
         """
-        Get joined 'processed' key from paginated find calls.
+        Get joined 'processed' key from paginated find calls
+
         Args:
             page_size (int): max results per LightBlue call
-            find_func (Callable): find function (find_item / find_all)
-            find_args (list): list of arguments for find function
-            find_kwargs (dict): list of keyword arguments for find function
+            find (Callable): find function (find_item / find_all)
 
         Returns:
             - list of processed items from multiple find calls
 
         """
-        find_args = [] if find_args is None else find_args
-        find_kwargs = {} if find_kwargs is None else find_kwargs
-        offset = 0
+        kwargs.update({
+            "from_": 0,
+            "max_results": page_size
+        })
+
         processed = []
-        while True:  # break when response length is 0
-            find_kwargs.update({
-                "from_": offset,
-                "max_results": page_size
-            })
-            page_response = find_func(*find_args, **find_kwargs)
-            if not self.check_response(page_response):
+        while True:
+            response = find(*args, **kwargs)
+            if not self.check_response(response):
                 return None
-            elif len(page_response['processed']) == 0:
-                break
-            else:
-                processed += page_response['processed']
-                offset += page_size
-        return processed
+            elif len(response['processed']) == 0:
+                return processed
+
+            processed.extend(response['processed'])
+            kwargs['from_'] += page_size

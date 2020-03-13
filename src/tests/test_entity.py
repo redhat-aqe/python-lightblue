@@ -211,10 +211,7 @@ class TestLightBlueEntity(TestCase):
         ]
         mock_check_response.return_value = True
         result = self.lb_entity.find_paginated(
-            200,
-            find_func,
-            find_args=('a', 'b', 'c', ),
-            find_kwargs={'d': 'e'}
+                200, find_func, 'a', 'b', 'c', d='e'
         )
         self.assertEqual(result, ['value 1', 'value 2', 'value 3'])
         self.assertEqual(
@@ -239,10 +236,7 @@ class TestLightBlueEntity(TestCase):
         ]
         mock_check_response.return_value = True
         result = self.lb_entity.find_paginated(
-            100,
-            find_func,
-            find_args=('a', 'b', 'c', ),
-            find_kwargs={'d': 'e'}
+                100, find_func, 'a', 'b', 'c', d='e'
         )
         self.assertEqual(result, ['value 1', 'value 2'])
         self.assertEqual(find_func.call_count, 2)
@@ -257,10 +251,7 @@ class TestLightBlueEntity(TestCase):
         ]
         mock_check_response.return_value = True
         result = self.lb_entity.find_paginated(
-            100,
-            find_func,
-            find_args=('a', 'b', 'c', ),
-            find_kwargs={'d': 'e'}
+                100, find_func, 'a', 'b', 'c', d='e'
         )
         self.assertEqual(result, [])
         self.assertEqual(find_func.call_count, 1)
@@ -281,10 +272,7 @@ class TestLightBlueEntity(TestCase):
         ]
         mock_check_response.side_effect = [True, False, True]
         result = self.lb_entity.find_paginated(
-            200,
-            find_func,
-            find_args=('a', 'b', 'c', ),
-            find_kwargs={'d': 'e'}
+                100, find_func, 'a', 'b', 'c', d='e'
         )
         self.assertEqual(result, None)
         self.assertEqual(find_func.call_count, 2)
