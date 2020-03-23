@@ -164,9 +164,11 @@ class TestLightBlueEntity(TestCase):
                 'field': '*',
                 'include': True,
                 'recursive': True
-            }
+            },
+            'from': 10,
+            'maxResults': 10,
         }
-        self.lb_entity.find_item(query)
+        self.lb_entity.find_item(query, from_=10, max_results=10)
         self.fake_lightblue_service.find_data.assert_called_once_with(
             self.lb_entity.entity_name, self.lb_entity.version, expected_data
         )
@@ -188,9 +190,11 @@ class TestLightBlueEntity(TestCase):
                 'field': '*',
                 'include': True,
                 'recursive': True
-            }
+            },
+            'from': 10,
+            'maxResults': 10,
         }
-        self.lb_entity.find_all()
+        self.lb_entity.find_all(from_=10, max_results=10)
         self.fake_lightblue_service.find_data.assert_called_once_with(
             self.lb_entity.entity_name, self.lb_entity.version, expected_data
         )
