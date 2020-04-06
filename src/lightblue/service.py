@@ -24,8 +24,8 @@ class LightBlueService(object):
         ssl_verify=True,
         custom_session=None,
     ):
-        self.data_url = data_url
-        self.metadata_url = metadata_url
+        self.data_url = data_url.rstrip('/')
+        self.metadata_url = metadata_url.rstrip('/')
         self.ssl_certificate = ssl_certificate
         if custom_session is None:
             self.session = retry_session()
