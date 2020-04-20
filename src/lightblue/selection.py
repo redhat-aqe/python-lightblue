@@ -253,16 +253,15 @@ class LightBlueGenericSelection(LightBlueQuery):
         Skips update if fields is empty.
 
         Args:
-            removed_fields (list):
-                list of sorted fields, for example:
+            fields (list): list of sorted fields, for example:
                 ['field.3', 'field.1']
 
         Returns:
             dict: response from lightblue update query
-            int: count on removed fields, 0 if update failed
+            int: count of removed fields, 0 if update failed
 
         """
-        if len(fields) == 0:
+        if not fields:
             return None, 0
         # check response is included
         self._add_to_update(unset=fields)
