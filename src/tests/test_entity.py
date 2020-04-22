@@ -3,6 +3,11 @@ from unittest import TestCase
 from lightblue.entity import LightBlueEntity
 from . import FakeLightblueService
 
+try:
+    from unittest.mock import Mock, patch, call
+except ImportError:
+    from mock import Mock, patch, call
+
 
 class TestLightBlueEntity(TestCase):
     """
@@ -159,9 +164,11 @@ class TestLightBlueEntity(TestCase):
                 'field': '*',
                 'include': True,
                 'recursive': True
-            }
+            },
+            'from': 10,
+            'maxResults': 10,
         }
-        self.lb_entity.find_item(query)
+        self.lb_entity.find_item(query, from_=10, max_results=10)
         self.fake_lightblue_service.find_data.assert_called_once_with(
             self.lb_entity.entity_name, self.lb_entity.version, expected_data
         )
@@ -183,9 +190,93 @@ class TestLightBlueEntity(TestCase):
                 'field': '*',
                 'include': True,
                 'recursive': True
-            }
+            },
+            'from': 10,
+            'maxResults': 10,
         }
-        self.lb_entity.find_all()
+        self.lb_entity.find_all(from_=10, max_results=10)
         self.fake_lightblue_service.find_data.assert_called_once_with(
             self.lb_entity.entity_name, self.lb_entity.version, expected_data
         )
+
+    @patch('lightblue.entity.LightBlueEntity.check_response')
+    def test_find_paginated(self, mock_check_response):
+        find_func = Mock()
+        find_func.side_effect = [
+            {
+                'processed': ['value 1', 'value 2']
+            },
+            {
+                'processed': ['value 3']
+            },
+            {
+                'processed': []
+            }
+        ]
+        mock_check_response.return_value = True
+        result = self.lb_entity.find_paginated(
+                200, find_func, 'a', 'b', 'c', d='e'
+        )
+        self.assertEqual(result, ['value 1', 'value 2', 'value 3'])
+        self.assertEqual(
+            find_func.call_args_list,
+            [
+                call('a', 'b', 'c', d='e', from_=0, max_results=200),
+                call('a', 'b', 'c', d='e', from_=200, max_results=200),
+                call('a', 'b', 'c', d='e', from_=400, max_results=200),
+            ]
+        )
+
+    @patch('lightblue.entity.LightBlueEntity.check_response')
+    def test_find_paginated_one_page(self, mock_check_response):
+        find_func = Mock()
+        find_func.side_effect = [
+            {
+                'processed': ['value 1', 'value 2']
+            },
+            {
+                'processed': []
+            }
+        ]
+        mock_check_response.return_value = True
+        result = self.lb_entity.find_paginated(
+                100, find_func, 'a', 'b', 'c', d='e'
+        )
+        self.assertEqual(result, ['value 1', 'value 2'])
+        self.assertEqual(find_func.call_count, 2)
+
+    @patch('lightblue.entity.LightBlueEntity.check_response')
+    def test_find_paginated_no_results(self, mock_check_response):
+        find_func = Mock()
+        find_func.side_effect = [
+            {
+                'processed': []
+            }
+        ]
+        mock_check_response.return_value = True
+        result = self.lb_entity.find_paginated(
+                100, find_func, 'a', 'b', 'c', d='e'
+        )
+        self.assertEqual(result, [])
+        self.assertEqual(find_func.call_count, 1)
+
+    @patch('lightblue.entity.LightBlueEntity.check_response')
+    def test_find_paginated_invalid_response(self, mock_check_response):
+        find_func = Mock()
+        find_func.side_effect = [
+            {
+                'processed': ['value 1', 'value 2']
+            },
+            {
+                'invalid': 'response'
+            },
+            {
+                'processed': ['value 3']
+            }
+        ]
+        mock_check_response.side_effect = [True, False, True]
+        result = self.lb_entity.find_paginated(
+                100, find_func, 'a', 'b', 'c', d='e'
+        )
+        self.assertEqual(result, None)
+        self.assertEqual(find_func.call_count, 2)

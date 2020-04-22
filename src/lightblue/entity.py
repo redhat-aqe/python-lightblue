@@ -145,13 +145,15 @@ class LightBlueEntity(object):
         return self.service.update_data(self.entity_name, self.version,
                                         lightblue_data)
 
-    def find_item(self, query, projection=None):
+    def find_item(self, query, projection=None, from_=None, max_results=None):
         """
         Find specific object according to query and projection field
         Args:
             query (dict): search query
             projection (list): specify field which will be returned
                                (default - return all)
+            from_: from item in query
+            max_results: limit results count in response
 
         Returns:
             - dict - result of search query
@@ -169,15 +171,21 @@ class LightBlueEntity(object):
                 'include': True,
                 'recursive': True
             }
+        if from_ is not None:
+            lightblue_data['from'] = from_
+        if max_results is not None:
+            lightblue_data['maxResults'] = max_results
         lightblue_data['projection'] = projection
         return self.service.find_data(self.entity_name, self.version,
                                       lightblue_data)
 
-    def find_all(self, projection=None):
+    def find_all(self, projection=None, from_=None, max_results=None):
         """
         Find all objects of given entity
         Args:
             projection (list): custom projection (default return all items)
+            from_: from item in query
+            max_results: limit results count in response
 
         Returns:
             - dict - result of search query
@@ -199,6 +207,38 @@ class LightBlueEntity(object):
                 'include': True,
                 'recursive': True
             }
+        if from_ is not None:
+            lightblue_data['from'] = from_
+        if max_results is not None:
+            lightblue_data['maxResults'] = max_results
         lightblue_data['projection'] = projection
         return self.service.find_data(self.entity_name, self.version,
                                       lightblue_data)
+
+    def find_paginated(self, page_size, find, *args, **kwargs):
+        """
+        Get joined 'processed' key from paginated find calls
+
+        Args:
+            page_size (int): max results per LightBlue call
+            find (Callable): find function (find_item / find_all)
+
+        Returns:
+            - list of processed items from multiple find calls
+
+        """
+        kwargs.update({
+            "from_": 0,
+            "max_results": page_size
+        })
+
+        processed = []
+        while True:
+            response = find(*args, **kwargs)
+            if not self.check_response(response):
+                return None
+            elif len(response['processed']) == 0:
+                return processed
+
+            processed.extend(response['processed'])
+            kwargs['from_'] += page_size
