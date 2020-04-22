@@ -1,4 +1,5 @@
 import os
+import io
 
 from setuptools import setup
 
@@ -7,19 +8,16 @@ PROJECT_ROOT, _ = os.path.split(__file__)
 NAME = 'python-lightblue'
 EMAILS = 'araszka@redhat.com, mbirger@redhat.com'
 AUTHORS = 'Ales Raszka, Mark Birger'
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 URL = 'https://github.com/redhat-aqe/python-lightblue'
 LICENSE = 'GPLv3'
 
 
 SHORT_DESCRIPTION = 'A Python API for Lightblue database.'
-try:
-    import pypandoc
-    DESCRIPTION = pypandoc.convert(os.path.join(PROJECT_ROOT, 'README.md'),
-                                   'rst')
-except (IOError, ImportError):
-    DESCRIPTION = SHORT_DESCRIPTION
+
+with io.open(os.path.join(PROJECT_ROOT, 'README.md'), encoding="utf-8") as f:
+    DESCRIPTION = f.read()
 
 INSTALL_REQUIRES = open(os.path.join(PROJECT_ROOT, 'requirements.txt')). \
         read().splitlines()
@@ -41,6 +39,7 @@ setup(
     url=URL,
     description=SHORT_DESCRIPTION,
     long_description=DESCRIPTION,
+    long_description_content_type='text/markdown',
     license=LICENSE,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
