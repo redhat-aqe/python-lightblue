@@ -42,7 +42,10 @@ class LightBlueService(object):
         Args:
             response: API call response
         """
-        log_response = {'statusCode': response.status_code}
+        log_response = {
+            'statusCode': response.status_code,
+            'elapsed': response.elapsed.total_seconds()
+        }
         try:
             response_data = response.json()
             log_response['status'] = response_data.get('status')
@@ -56,7 +59,8 @@ class LightBlueService(object):
         except ValueError:
             log_response['text_response'] = response.text
 
-        LOGGER.debug("LightBlue response - %s", log_response)
+        LOGGER.debug("LightBlue response - %s",
+                     log_response, extra=log_response)
         return log_response
 
     def get_schema(self, entity_name, version):
