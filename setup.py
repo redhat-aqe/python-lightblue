@@ -8,7 +8,7 @@ PROJECT_ROOT, _ = os.path.split(__file__)
 NAME = 'python-lightblue'
 EMAILS = 'araszka@redhat.com, mbirger@redhat.com'
 AUTHORS = 'Ales Raszka, Mark Birger'
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 URL = 'https://github.com/redhat-aqe/python-lightblue'
 LICENSE = 'GPLv3'
