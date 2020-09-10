@@ -104,8 +104,10 @@ class LightBlueService(object):
         )
         LOGGER.debug("%s - %s", 'PUT', url)
         response = self.session.put(url, json=data)
-        self.log_response(response)
-        if response.status_code != 200:
+
+        log = self.log_response(response)
+        status_code = response.status_code
+        if status_code != 200 or log['status'] == 'ERROR':
             LOGGER.error('Insert data failed - %s', json.dumps(data))
             return None
         return response.json()
@@ -131,8 +133,10 @@ class LightBlueService(object):
         )
         LOGGER.debug("%s - %s", 'POST', url)
         response = self.session.post(url, json=data)
-        self.log_response(response)
-        if response.status_code != 200:
+
+        log = self.log_response(response)
+        status_code = response.status_code
+        if status_code != 200 or log['status'] == 'ERROR':
             LOGGER.error('Delete data failed - %s', json.dumps(data))
             return None
         return response.json()
@@ -157,8 +161,10 @@ class LightBlueService(object):
         )
         LOGGER.debug("%s - %s", 'POST', url)
         response = self.session.post(url, json=data)
-        self.log_response(response)
-        if response.status_code != 200:
+
+        log = self.log_response(response)
+        status_code = response.status_code
+        if status_code != 200 or log['status'] == 'ERROR':
             LOGGER.error('Update data failed - %s', json.dumps(data))
             return None
         return response.json()
@@ -184,8 +190,10 @@ class LightBlueService(object):
         )
         LOGGER.debug("%s - %s", 'POST', url)
         response = self.session.post(url, json=data)
-        self.log_response(response)
-        if response.status_code != 200:
+
+        log = self.log_response(response)
+        status_code = response.status_code
+        if status_code != 200 or log['status'] == 'ERROR':
             LOGGER.error('Find data failed - %s', json.dumps(data))
             return None
         return response.json()

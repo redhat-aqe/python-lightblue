@@ -51,6 +51,7 @@ class TestLightBlueService(TestCase):
             'dataErrors': None,
             'data': ['object'],
         }
+        response.elapsed.total_seconds = lambda: 0
         response.status_code = 200
         result = self.service.log_response(response)
         expected_result = {
@@ -60,6 +61,7 @@ class TestLightBlueService(TestCase):
             'dataErrors': None,
             'errors': None,
             'statusCode': 200,
+            'elapsed': 0,
         }
         self.assertEqual(result, expected_result)
 
@@ -71,8 +73,13 @@ class TestLightBlueService(TestCase):
         response.json.side_effect = ValueError('err')
         response.text = 'response'
         response.status_code = 500
+        response.elapsed.total_seconds = lambda: 0
         result = self.service.log_response(response)
-        expected_result = {'text_response': 'response', 'statusCode': 500}
+        expected_result = {
+            'text_response': 'response',
+            'statusCode': 500,
+            'elapsed': 0,
+        }
         self.assertEqual(result, expected_result)
 
     @patch('requests.Session.get')
@@ -108,7 +115,7 @@ class TestLightBlueService(TestCase):
         self.assertEqual(result, resp_data)
 
     @patch('requests.Session.put')
-    def test_insert_data_failed(self, mock_put):
+    def test_insert_data_failed_statusCode(self, mock_put):
         """
         Test of inserting data - failed request
         """
@@ -121,6 +128,27 @@ class TestLightBlueService(TestCase):
         }
         mock_put.return_value.json.return_value = resp_data
         mock_put.return_value.status_code = 500
+        result = self.service.insert_data('entity', 'version', data)
+        call_args = mock_put.call_args
+        self.assertEqual(
+            call_args[0][0], '{}/insert/entity/version'.format(self.data_url)
+        )
+        self.assertEqual(call_args[1], {'json': data})
+        self.assertIsNone(result)
+
+    @patch('requests.Session.put')
+    def test_insert_data_fail_status(self, mock_put):
+        """
+        Test of inserting data
+        """
+        data = 'object'
+        resp_data = {
+            'status': 'ERROR',
+            'matchCount': 0,
+            'modifiedCount': 0,
+        }
+        mock_put.return_value.json.return_value = resp_data
+        mock_put.return_value.status_code = 200
         result = self.service.insert_data('entity', 'version', data)
         call_args = mock_put.call_args
         self.assertEqual(
@@ -152,7 +180,7 @@ class TestLightBlueService(TestCase):
         self.assertEqual(result, resp_data)
 
     @patch('requests.Session.post')
-    def test_delete_data_failed(self, mock_post):
+    def test_delete_data_failed_statusCode(self, mock_post):
         """
         Test of deleting data - failed request
         """
@@ -165,6 +193,27 @@ class TestLightBlueService(TestCase):
         }
         mock_post.return_value.json.return_value = resp_data
         mock_post.return_value.status_code = 500
+        result = self.service.delete_data('entity', 'version', data)
+        call_args = mock_post.call_args
+        self.assertEqual(
+            call_args[0][0], '{}/delete/entity/version'.format(self.data_url)
+        )
+        self.assertEqual(call_args[1], {'json': data})
+        self.assertIsNone(result)
+
+    @patch('requests.Session.post')
+    def test_delete_data_failed_status(self, mock_post):
+        """
+        Test of deleting data - failed request
+        """
+        data = 'object'
+        resp_data = {
+            'status': 'ERROR',
+            'matchCount': 0,
+            'modifiedCount': 0,
+        }
+        mock_post.return_value.json.return_value = resp_data
+        mock_post.return_value.status_code = 200
         result = self.service.delete_data('entity', 'version', data)
         call_args = mock_post.call_args
         self.assertEqual(
@@ -196,7 +245,7 @@ class TestLightBlueService(TestCase):
         self.assertEqual(result, resp_data)
 
     @patch('requests.Session.post')
-    def test_update_data_failed(self, mock_post):
+    def test_update_data_failed_statusCode(self, mock_post):
         """
         Test of updating data - failed request
         """
@@ -209,6 +258,27 @@ class TestLightBlueService(TestCase):
         }
         mock_post.return_value.json.return_value = resp_data
         mock_post.return_value.status_code = 500
+        result = self.service.update_data('entity', 'version', data)
+        call_args = mock_post.call_args
+        self.assertEqual(
+            call_args[0][0], '{}/update/entity/version'.format(self.data_url)
+        )
+        self.assertEqual(call_args[1], {'json': data})
+        self.assertIsNone(result)
+
+    @patch('requests.Session.post')
+    def test_update_data_failed_status(self, mock_post):
+        """
+        Test of updating data - failed request
+        """
+        data = 'object'
+        resp_data = {
+            'status': 'ERROR',
+            'matchCount': 0,
+            'modifiedCount': 0,
+        }
+        mock_post.return_value.json.return_value = resp_data
+        mock_post.return_value.status_code = 200
         result = self.service.update_data('entity', 'version', data)
         call_args = mock_post.call_args
         self.assertEqual(
@@ -240,7 +310,7 @@ class TestLightBlueService(TestCase):
         self.assertEqual(result, resp_data)
 
     @patch('requests.Session.post')
-    def test_find_data_failed(self, mock_post):
+    def test_find_data_failed_statusCode(self, mock_post):
         """
         Test of finding data - failed request
         """
@@ -253,6 +323,27 @@ class TestLightBlueService(TestCase):
         }
         mock_post.return_value.json.return_value = resp_data
         mock_post.return_value.status_code = 500
+        result = self.service.find_data('entity', 'version', data)
+        call_args = mock_post.call_args
+        self.assertEqual(
+            call_args[0][0], '{}/find/entity/version'.format(self.data_url)
+        )
+        self.assertEqual(call_args[1], {'json': data})
+        self.assertIsNone(result)
+
+    @patch('requests.Session.post')
+    def test_find_data_failed_status(self, mock_post):
+        """
+        Test of finding data - failed request
+        """
+        data = 'object'
+        resp_data = {
+            'status': 'ERROR',
+            'matchCount': 0,
+            'modifiedCount': 0,
+        }
+        mock_post.return_value.json.return_value = resp_data
+        mock_post.return_value.status_code = 200
         result = self.service.find_data('entity', 'version', data)
         call_args = mock_post.call_args
         self.assertEqual(
